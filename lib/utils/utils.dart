@@ -31,3 +31,5 @@ List<Map<String, dynamic>> quizTopics = [
   {"topic": "Religion", "emoji": "⛪"},
   {"topic": "Health", "emoji": "🏋️‍♀️"},
 ];
+
+String OPENAI_KEY = "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";
