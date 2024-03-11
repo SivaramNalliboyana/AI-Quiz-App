@@ -4,6 +4,8 @@ import 'package:aiquizapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
+  TextEditingController topicController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +21,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 10),
+                  SizedBox(height: 20),
                   Text(
                     'Create Quiz',
                     style: myStyle(28, Colors.white, FontWeight.bold),
@@ -43,6 +45,7 @@ class HomeScreen extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: TextFormField(
+                          controller: topicController,
                           style: myStyle(16, Colors.grey, FontWeight.bold),
                           decoration: InputDecoration(
                             labelText: 'Enter a custom topic',
@@ -56,7 +59,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 25),
                   SizedBox(
                     width: 250,
                     height: 50,
@@ -64,7 +67,8 @@ class HomeScreen extends StatelessWidget {
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => QuizScreen())),
+                              builder: (context) =>
+                                  QuizScreen(topicController.text))),
                       child: Text(
                         'Create',
                         style: myStyle(20, blueColor, FontWeight.w700),
@@ -75,26 +79,40 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 8.0,
-                runSpacing: 8.0,
-                children: quizTopics.map((topic) {
-                  return Chip(
-                    label: Text(
-                      topic['topic'],
-                      style: myStyle(16, Colors.white, FontWeight.w700),
-                    ),
-                    side: BorderSide.none,
-                    backgroundColor: blueColor,
-                    elevation: 4,
-                    avatar: Text(
-                      topic['emoji'],
-                      style: TextStyle(fontSize: 20.0),
+              padding: const EdgeInsets.all(6.0),
+              child: GridView.builder(
+                padding: EdgeInsets.only(top: 8),
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, childAspectRatio: 2.5),
+                itemCount: quizTopics.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                QuizScreen(quizTopics[index]['topic']))),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width / 2,
+                        height: 55,
+                        decoration: BoxDecoration(
+                          color: blueColor.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "${quizTopics[index]['emoji']} ${quizTopics[index]['topic']}",
+                            style: myStyle(21, Colors.white, FontWeight.bold),
+                          ),
+                        ),
+                      ),
                     ),
                   );
-                }).toList(),
+                },
               ),
             )
           ],

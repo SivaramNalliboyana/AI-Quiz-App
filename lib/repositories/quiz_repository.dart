@@ -5,7 +5,7 @@ import 'package:aiquizapp/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 class QuizRepository {
-  Future<List<QuizModel>> getQuestions() async {
+  Future<List<QuizModel>> getQuestions(String topic) async {
     String url = "https://api.openai.com/v1/chat/completions";
 
     final response = await http.post(Uri.parse(url),
@@ -26,7 +26,7 @@ class QuizRepository {
               {
                 "role": "user",
                 "content":
-                    "Generate 10 questions on Football topic. Give each question with 4 answers"
+                    "Generate 10 questions on $topic topic. Give each question with 4 answers"
               }
             ]
           },

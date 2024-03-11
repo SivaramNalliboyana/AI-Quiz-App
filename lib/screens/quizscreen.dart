@@ -1,17 +1,17 @@
-import 'dart:convert';
+// ignore_for_file: avoid_print
 
 import 'package:aiquizapp/controller/quiz_controller.dart';
-import 'package:aiquizapp/models/quiz_model.dart';
+import 'package:aiquizapp/screens/loadingscreen.dart';
+import 'package:aiquizapp/screens/resultscreen.dart';
 import 'package:aiquizapp/utils/style.dart';
-import 'package:aiquizapp/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 
 final _globalKey = GlobalKey<ScaffoldMessengerState>();
 
 class QuizScreen extends ConsumerWidget {
-  List<String> answers = ["Paris", "Berlin", "Dublin", "Dehli"];
+  final String topic;
+  QuizScreen(this.topic);
 
   late Map<String, dynamic> quizresponse;
 
@@ -49,260 +49,227 @@ class QuizScreen extends ConsumerWidget {
     final selectedOption = ref.watch(selectedOptionProvider);
     final correctAnswers = ref.watch(correctAnswersProvider);
     final wrongAnswers = ref.watch(wrongAnswersProvider);
-    return ref.watch(quizProvider).when(
-        data: (quizQuestions) {
-          if (currentQuestionIndex < quizQuestions.length) {
-            return ScaffoldMessenger(
-              key: _globalKey,
-              child: Scaffold(
-                backgroundColor: bgcolor,
-                floatingActionButton: Container(
-                  height: 45,
-                  width: 45,
-                  child: FloatingActionButton(
-                    backgroundColor: blueColor,
-                    onPressed: () => checkAnswer(
-                        ref,
-                        quizQuestions[currentQuestionIndex].correctAnswer,
-                        selectedOption),
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 30,
+
+    return ref.watch(quizProvider(topic)).when(
+          data: (quizQuestions) {
+            if (currentQuestionIndex < quizQuestions.length) {
+              return ScaffoldMessenger(
+                key: _globalKey,
+                child: Scaffold(
+                  backgroundColor: bgcolor,
+                  floatingActionButton: Container(
+                    height: 45,
+                    width: 45,
+                    child: FloatingActionButton(
+                      backgroundColor: blueColor,
+                      onPressed: () => checkAnswer(
+                          ref,
+                          quizQuestions[currentQuestionIndex].correctAnswer,
+                          selectedOption),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
                   ),
-                ),
-                body: SingleChildScrollView(
-                  physics: const ScrollPhysics(),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height * 0.4,
-                        decoration: BoxDecoration(
-                            color: blueColor,
-                            borderRadius: const BorderRadius.only(
-                                bottomLeft: Radius.circular(50),
-                                bottomRight: Radius.circular(50))),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 20.0,
-                            right: 20.0,
-                            top: MediaQuery.of(context).size.height * 0.2),
-                        child: Column(
-                          children: [
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 5,
-                                      blurRadius: 7,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(15.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                correctAnswers.toString(),
-                                                style: myStyle(18, Colors.green,
-                                                    FontWeight.bold),
-                                              ),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              const Icon(
-                                                Icons.check_circle,
-                                                color: Colors.green,
-                                              )
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                wrongAnswers.toString(),
-                                                style: myStyle(18, Colors.red,
-                                                    FontWeight.bold),
-                                              ),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              const Icon(
-                                                Icons.close_rounded,
-                                                color: Colors.red,
-                                              )
-                                            ],
-                                          )
-                                        ],
+                  body: SingleChildScrollView(
+                    physics: const ScrollPhysics(),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height * 0.4,
+                          decoration: BoxDecoration(
+                              color: blueColor,
+                              borderRadius: const BorderRadius.only(
+                                  bottomLeft: Radius.circular(50),
+                                  bottomRight: Radius.circular(50))),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: 20.0,
+                              right: 20.0,
+                              top: MediaQuery.of(context).size.height * 0.2),
+                          child: Column(
+                            children: [
+                              InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 5,
+                                        blurRadius: 7,
+                                        offset: const Offset(0, 3),
                                       ),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      Text(
-                                        'Question ${currentQuestionIndex + 1}/10',
-                                        style: myStyle(
-                                            20, Colors.black, FontWeight.bold),
-                                      ),
-                                      const SizedBox(height: 10.0),
-                                      Text(
-                                        quizQuestions[currentQuestionIndex]
-                                            .question,
-                                        style: myStyle(
-                                            20, Colors.black, FontWeight.w600),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 20.0),
                                     ],
                                   ),
-                                ),
-                              ),
-                            ),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: answers.length,
-                              itemBuilder: (context, index) {
-                                String answer =
-                                    quizQuestions[currentQuestionIndex]
-                                        .answers[index];
-                                return Padding(
-                                  padding: index != 0
-                                      ? const EdgeInsets.only(top: 20.0)
-                                      : const EdgeInsets.only(top: 10.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      ref
-                                          .read(selectedOptionProvider.notifier)
-                                          .state = answer;
-                                    },
-                                    child: selectedOption != answer
-                                        ? Container(
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            height: 55,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(20.0),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.grey
-                                                      .withOpacity(0.35),
-                                                  spreadRadius: 5,
-                                                  blurRadius: 7,
-                                                  offset: const Offset(0, 3),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  correctAnswers.toString(),
+                                                  style: myStyle(
+                                                      18,
+                                                      Colors.green,
+                                                      FontWeight.bold),
                                                 ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                const Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.green,
+                                                )
                                               ],
                                             ),
-                                            child: Center(
-                                              child: Text(
-                                                answer,
-                                                style: myStyle(20, Colors.black,
-                                                    FontWeight.w600),
-                                              ),
-                                            ),
-                                          )
-                                        : Container(
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            height: 55,
-                                            decoration: BoxDecoration(
-                                              color: blueColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(20.0),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                answer,
-                                                style: myStyle(20, Colors.white,
-                                                    FontWeight.w600),
-                                              ),
-                                            ),
-                                          ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.16),
-                        child: SizedBox(
-                          height: 55,
-                          child: Stack(
-                            children: [
-                              Center(
-                                child: Container(
-                                  width: 55.0,
-                                  height: 55.0,
-                                  decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle),
-                                  child: CircularProgressIndicator(
-                                    value: 0.5,
-                                    strokeWidth: 5.0,
-                                    backgroundColor: Colors.white,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        blueColor),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  wrongAnswers.toString(),
+                                                  style: myStyle(18, Colors.red,
+                                                      FontWeight.bold),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                const Icon(
+                                                  Icons.close_rounded,
+                                                  color: Colors.red,
+                                                )
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Text(
+                                          'Question ${currentQuestionIndex + 1}/10',
+                                          style: myStyle(20, Colors.black,
+                                              FontWeight.bold),
+                                        ),
+                                        const SizedBox(height: 10.0),
+                                        Text(
+                                          quizQuestions[currentQuestionIndex]
+                                              .question,
+                                          style: myStyle(20, Colors.black,
+                                              FontWeight.w600),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 20.0),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              Center(
-                                child: Text(
-                                  "18",
-                                  style:
-                                      myStyle(20, blueColor, FontWeight.w600),
-                                ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: quizQuestions[currentQuestionIndex]
+                                    .answers
+                                    .length,
+                                itemBuilder: (context, index) {
+                                  String answer =
+                                      quizQuestions[currentQuestionIndex]
+                                          .answers[index];
+                                  return Padding(
+                                    padding: index != 0
+                                        ? const EdgeInsets.only(top: 20.0)
+                                        : const EdgeInsets.only(top: 10.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        ref
+                                            .read(
+                                                selectedOptionProvider.notifier)
+                                            .state = answer;
+                                      },
+                                      child: selectedOption != answer
+                                          ? Container(
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              height: 55,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(20.0),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey
+                                                        .withOpacity(0.35),
+                                                    spreadRadius: 5,
+                                                    blurRadius: 7,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  answer,
+                                                  style: myStyle(
+                                                      20,
+                                                      Colors.black,
+                                                      FontWeight.w600),
+                                                ),
+                                              ),
+                                            )
+                                          : Container(
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              height: 55,
+                                              decoration: BoxDecoration(
+                                                color: blueColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(20.0),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  answer,
+                                                  style: myStyle(
+                                                      20,
+                                                      Colors.white,
+                                                      FontWeight.w600),
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          } else {
-            return Scaffold(
-              body: InkWell(
-                onTap: () {
-                  ref.read(selectedOptionProvider.notifier).state = "";
-                  ref.read(currentQuestionIndexProvider.notifier).state = 0;
-                  ref.read(correctAnswersProvider.notifier).state = 0;
-                  ref.read(wrongAnswersProvider.notifier).state = 0;
-                },
-                child: Container(),
-              ),
-            );
-          }
-        },
-        error: (err, trace) {
-          print(err.toString());
-          print(trace.toString());
-          return Container();
-        },
-        loading: () => const CircularProgressIndicator());
+              );
+            } else {
+              return ResultScreen(quizQuestions, correctAnswers, wrongAnswers);
+            }
+          },
+          error: (err, trace) {
+            print(err.toString());
+            print(trace.toString());
+            return Container();
+          },
+          loading: () => LoadingScreen(),
+        );
   }
 }
